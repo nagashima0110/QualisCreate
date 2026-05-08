@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QualisCreate - テスト設計支援ツール</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="app-title">QualisCreate</h1>
+      <span class="app-subtitle">テスト設計支援ツール</span>
+    </div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="tab-decompose" onclick="switchTab('tab-decompose')">
+        <span class="tab-num">①</span>機能分解
+      </button>
+      <span class="tab-arrow">›</span>
+      <button class="tab-btn" data-tab="tab-perspectives" onclick="switchTab('tab-perspectives')">
+        <span class="tab-num">②</span>テスト観点
+      </button>
+      <span class="tab-arrow">›</span>
+      <button class="tab-btn" data-tab="tab-technique" onclick="switchTab('tab-technique')">
+        <span class="tab-num">③</span>テスト技法
+      </button>
+      <span class="tab-arrow">›</span>
+      <button class="tab-btn" data-tab="tab-export" onclick="switchTab('tab-export')">
+        <span class="tab-num">④</span>出力
+      </button>
+    </nav>
+    <div class="header-right">
+      <button class="btn-icon" onclick="saveState()" title="状態を保存">💾</button>
+      <button class="btn-icon" onclick="loadState()" title="状態を読込">📂</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- ① 機能分解タブ -->
+    <div id="tab-decompose" class="tab-content active">
+      <div class="tab-inner">
+        <div class="section-header">
+          <h2>① 機能分解</h2>
+          <p class="section-desc">仕様書を読んで機能・機能内の要素に分解して入力してください</p>
+        </div>
+        <div class="split-pane">
+          <!-- 機能一覧 -->
+          <div class="pane pane-left">
+            <div class="pane-header">
+              <h3>機能一覧</h3>
+              <button class="btn-add" onclick="showAddFeatureForm()">＋ 機能追加</button>
+            </div>
+            <!-- 機能追加フォーム -->
+            <div id="add-feature-form" class="inline-form hidden">
+              <input type="text" id="new-feature-name" placeholder="機能名" class="form-input">
+              <textarea id="new-feature-desc" placeholder="機能の説明（任意）" class="form-input form-textarea" rows="2"></textarea>
+              <div class="form-actions">
+                <button class="btn-primary" onclick="addFeature()">追加</button>
+                <button class="btn-secondary" onclick="hideAddFeatureForm()">キャンセル</button>
+              </div>
+            </div>
+            <div id="feature-list" class="item-list">
+              <div class="empty-state">機能が登録されていません<br>「＋ 機能追加」から追加してください</div>
+            </div>
+          </div>
+
+          <!-- 要素一覧 -->
+          <div class="pane pane-right">
+            <div class="pane-header">
+              <h3 id="element-pane-title">要素一覧</h3>
+              <button class="btn-add" onclick="showAddElementForm()" id="btn-add-element" disabled>＋ 要素追加</button>
+            </div>
+            <!-- 要素追加フォーム -->
+            <div id="add-element-form" class="inline-form hidden">
+              <input type="text" id="new-element-name" placeholder="要素名" class="form-input">
+              <textarea id="new-element-desc" placeholder="要素の説明（任意）" class="form-input form-textarea" rows="2"></textarea>
+              <div class="form-actions">
+                <button class="btn-primary" onclick="addElement()">追加</button>
+                <button class="btn-secondary" onclick="hideAddElementForm()">キャンセル</button>
+              </div>
+            </div>
+            <div id="element-list" class="item-list">
+              <div class="empty-state">左から機能を選択してください</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-footer">
+          <div class="step-info">
+            <span id="decompose-summary" class="step-summary">機能: 0個　要素: 0個</span>
+          </div>
+          <button class="btn-next" onclick="switchTab('tab-perspectives')">次へ：テスト観点を選択 ›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② テスト観点タブ -->
+    <div id="tab-perspectives" class="tab-content">
+      <div class="tab-inner">
+        <div class="section-header">
+          <h2>② テスト観点チェック</h2>
+          <p class="section-desc">対象の機能・要素に対してどのテスト観点を意識すべきか選択してください</p>
+        </div>
+
+        <div class="target-selector">
+          <label>対象機能：</label>
+          <select id="persp-feature-sel" class="form-select" onchange="onPerspFeatureChange()">
+            <option value="">-- 機能を選択 --</option>
+          </select>
+          <label>対象要素：</label>
+          <select id="persp-element-sel" class="form-select" onchange="onPerspElementChange()">
+            <option value="">-- 全体（機能単位） --</option>
+          </select>
+          <button class="btn-secondary" onclick="clearPerspChecks()">チェッククリア</button>
+          <button class="btn-secondary" onclick="checkAllPersp()">全選択</button>
+        </div>
+
+        <div id="perspectives-grid" class="perspectives-grid">
+          <!-- JSで動的生成 -->
+        </div>
+
+        <div class="recommended-techniques-bar" id="recommended-bar">
+          <span class="rec-label">推奨テスト技法：</span>
+          <span id="recommended-list">（観点を選択すると推奨技法が表示されます）</span>
+        </div>
+
+        <div class="tab-footer">
+          <button class="btn-back" onclick="switchTab('tab-decompose')">‹ 前へ：機能分解</button>
+          <button class="btn-next" onclick="switchTab('tab-technique')">次へ：テスト技法を適用 ›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ テスト技法タブ -->
+    <div id="tab-technique" class="tab-content">
+      <div class="tab-inner">
+        <div class="section-header">
+          <h2>③ テスト技法</h2>
+          <p class="section-desc">テスト技法を選択し、入力情報からテストケースを生成します</p>
+        </div>
+
+        <div class="technique-layout">
+          <!-- 左：技法選択 -->
+          <div class="technique-sidebar">
+            <div class="target-selector-v">
+              <label>対象機能：</label>
+              <select id="tech-feature-sel" class="form-select" onchange="onTechFeatureChange()">
+                <option value="">-- 機能を選択 --</option>
+              </select>
+              <label>対象要素：</label>
+              <select id="tech-element-sel" class="form-select">
+                <option value="">-- 要素を選択 --</option>
+              </select>
+            </div>
+
+            <div class="recommended-section">
+              <h4>推奨技法</h4>
+              <div id="tech-recommended-list" class="rec-chip-list">
+                <span class="muted">（観点タブで選択した観点に基づく推奨）</span>
+              </div>
+            </div>
+
+            <div class="technique-list-section">
+              <h4>技法一覧</h4>
+              <div id="technique-buttons" class="technique-btn-list">
+                <!-- JSで動的生成 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 右：技法入力フォームと結果 -->
+          <div class="technique-main">
+            <div id="technique-form-area">
+              <div class="empty-state large">左から技法を選択してください</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-footer">
+          <button class="btn-back" onclick="switchTab('tab-perspectives')">‹ 前へ：テスト観点</button>
+          <span id="testcase-count" class="step-summary">生成済みテストケース: 0件</span>
+          <button class="btn-next" onclick="switchTab('tab-export')">次へ：出力 ›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 出力タブ -->
+    <div id="tab-export" class="tab-content">
+      <div class="tab-inner">
+        <div class="section-header">
+          <h2>④ テストケース出力</h2>
+          <p class="section-desc">生成したテストケースを確認して出力形式を選択します</p>
+        </div>
+
+        <div class="export-toolbar">
+          <label>機能フィルター：</label>
+          <select id="export-feature-filter" class="form-select" onchange="renderExportTable()">
+            <option value="">全て</option>
+          </select>
+          <label>技法フィルター：</label>
+          <select id="export-technique-filter" class="form-select" onchange="renderExportTable()">
+            <option value="">全て</option>
+          </select>
+          <span id="export-count" class="step-summary">0件</span>
+          <div class="export-buttons">
+            <button class="btn-primary" onclick="exportToExcel()">📥 Excelで出力</button>
+            <button class="btn-secondary" onclick="clearAllTestCases()">🗑 全テストケース削除</button>
+          </div>
+        </div>
+
+        <div class="export-table-wrap">
+          <table id="export-table" class="data-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>機能</th>
+                <th>要素</th>
+                <th>テスト観点</th>
+                <th>テスト技法</th>
+                <th>テスト条件</th>
+                <th>テストデータ</th>
+                <th>期待結果</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="export-tbody">
+              <tr><td colspan="9" class="empty-cell">テストケースがありません</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tab-footer">
+          <button class="btn-back" onclick="switchTab('tab-technique')">‹ 前へ：テスト技法</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- モーダル：編集 -->
+  <div id="edit-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeModal()"></div>
+    <div class="modal-content">
+      <h3 id="modal-title">編集</h3>
+      <div id="modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-primary" id="modal-save-btn">保存</button>
+        <button class="btn-secondary" onclick="closeModal()">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
