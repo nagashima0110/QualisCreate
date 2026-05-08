@@ -70,6 +70,22 @@ function switchTab(tabId) {
     updateAllSelectors();
   } else if (tabId === 'tab-technique') {
     updateAllSelectors();
+    // 観点タブで選択中の機能・要素を技法タブに自動同期（観点欄の空欄を防止）
+    const perspFid = document.getElementById('persp-feature-sel')?.value || '';
+    const perspEid = document.getElementById('persp-element-sel')?.value || '';
+    if (perspFid) {
+      const techFsel = document.getElementById('tech-feature-sel');
+      if (techFsel && techFsel.value !== perspFid) {
+        techFsel.value = perspFid;
+        onTechFeatureChange();
+      }
+      if (perspEid) {
+        setTimeout(() => {
+          const techEsel = document.getElementById('tech-element-sel');
+          if (techEsel) techEsel.value = perspEid;
+        }, 0);
+      }
+    }
     updateTechRecommended();
     updateTestCaseCount();
   } else if (tabId === 'tab-export') {
@@ -395,6 +411,10 @@ function onTechFeatureChange() {
   updateTechRecommended();
 }
 
+function onTechElementChange() {
+  updateTechRecommended();
+}
+
 function updateTechRecommended() {
   const fid = document.getElementById('tech-feature-sel')?.value || '';
   const eid = document.getElementById('tech-element-sel')?.value || '';
@@ -402,6 +422,14 @@ function updateTechRecommended() {
   const checked = tid ? (state.perspectives[tid] || []) : [];
   const techCodes = new Set();
   PERSPECTIVES.filter(p => checked.includes(p.no)).forEach(p => p.techniqueCodes.forEach(c => techCodes.add(c)));
+
+  // 全技法ボタンの推奨ハイライトを一旦クリアし、推奨技法をハイライト
+  document.querySelectorAll('.tech-btn').forEach(btn => btn.classList.remove('recommended'));
+  techCodes.forEach(c => {
+    const btn = document.getElementById(`tbtn-${c}`);
+    if (btn) btn.classList.add('recommended');
+  });
+
   const container = document.getElementById('tech-recommended-list');
   if (!container) return;
   if (techCodes.size === 0) {
@@ -413,6 +441,34 @@ function updateTechRecommended() {
     if (!t) return '';
     return `<button class="rec-chip clickable" onclick="selectTechnique('${t.code}')">${t.name}</button>`;
   }).join('');
+
+  // 現在選択中の技法フォームの観点表示も更新
+  if (selectedTechnique) refreshPerspAwarenessBar(selectedTechnique);
+}
+
+// 技法フォーム上部の「意識すべきテスト観点」バーを更新
+function refreshPerspAwarenessBar(code) {
+  const bar = document.getElementById('persp-awareness-bar');
+  if (!bar) return;
+  const fid = document.getElementById('tech-feature-sel')?.value || '';
+  const eid = document.getElementById('tech-element-sel')?.value || '';
+  const tid = eid || fid;
+  const selectedPerspNos = tid ? (state.perspectives[tid] || []) : [];
+  bar.innerHTML = buildPerspAwarenessHtml(code, selectedPerspNos);
+}
+
+// 観点バーのHTML生成（選択済み観点を表示、この技法に関連するものをハイライト）
+function buildPerspAwarenessHtml(code, selectedPerspNos) {
+  if (!selectedPerspNos.length) {
+    return '<span class="persp-awareness-label">意識すべきテスト観点：</span><span class="muted">（②テスト観点タブで観点を選択してください）</span>';
+  }
+  const chips = selectedPerspNos.map(n => {
+    const p = PERSPECTIVES.find(p => p.no === n);
+    if (!p) return '';
+    const isRelevant = p.techniqueCodes.includes(code);
+    return `<span class="persp-chip${isRelevant ? ' relevant' : ''}" title="No.${p.no}: ${p.content}">${p.name}</span>`;
+  }).join('');
+  return `<span class="persp-awareness-label">意識すべきテスト観点：</span>${chips}`;
 }
 
 function selectTechnique(code) {
@@ -430,7 +486,16 @@ function renderTechniqueForm(code) {
 
   const savedState = techniqueInputState[code] || {};
 
+  // 現在の対象の選択済みテスト観点を取得して観点バーを構築
+  const fid = document.getElementById('tech-feature-sel')?.value || '';
+  const eid = document.getElementById('tech-element-sel')?.value || '';
+  const tid = eid || fid;
+  const selectedPerspNos = tid ? (state.perspectives[tid] || []) : [];
+
   let formHtml = `
+    <div class="persp-awareness-bar" id="persp-awareness-bar">
+      ${buildPerspAwarenessHtml(code, selectedPerspNos)}
+    </div>
     <div class="tech-form-header">
       <span class="tech-form-icon">${tech.icon}</span>
       <div>
