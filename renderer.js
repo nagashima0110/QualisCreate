@@ -68,23 +68,32 @@ function switchTab(tabId) {
 
   if (tabId === 'tab-perspectives') {
     updateAllSelectors();
+    // 機能が未選択なら最初の機能を自動選択して観点を読み込む
+    const perspFsel = document.getElementById('persp-feature-sel');
+    if (perspFsel && !perspFsel.value && state.features.length > 0) {
+      perspFsel.value = state.features[0].id;
+      onPerspFeatureChange();
+    }
   } else if (tabId === 'tab-technique') {
     updateAllSelectors();
-    // 観点タブで選択中の機能・要素を技法タブに自動同期（観点欄の空欄を防止）
+    // 観点タブで選択中の機能・要素を技法タブに常に同期
     const perspFid = document.getElementById('persp-feature-sel')?.value || '';
     const perspEid = document.getElementById('persp-element-sel')?.value || '';
-    if (perspFid) {
-      const techFsel = document.getElementById('tech-feature-sel');
-      if (techFsel && techFsel.value !== perspFid) {
-        techFsel.value = perspFid;
-        onTechFeatureChange();
-      }
-      if (perspEid) {
-        setTimeout(() => {
-          const techEsel = document.getElementById('tech-element-sel');
-          if (techEsel) techEsel.value = perspEid;
-        }, 0);
-      }
+    const techFsel = document.getElementById('tech-feature-sel');
+    // 技法タブに機能が未選択の場合はpersp側またはfeaturesの先頭を使う
+    const targetFid = perspFid || (state.features.length > 0 ? state.features[0].id : '');
+    if (techFsel && targetFid && techFsel.value !== targetFid) {
+      techFsel.value = targetFid;
+      onTechFeatureChange();
+    } else if (techFsel && techFsel.value) {
+      // 同じ機能でも要素ドロップダウンを再構築して観点を更新
+      onTechFeatureChange();
+    }
+    if (perspEid) {
+      setTimeout(() => {
+        const techEsel = document.getElementById('tech-element-sel');
+        if (techEsel) { techEsel.value = perspEid; updateTechRecommended(); }
+      }, 0);
     }
     updateTechRecommended();
     updateTestCaseCount();
@@ -416,8 +425,10 @@ function onTechElementChange() {
 }
 
 function updateTechRecommended() {
-  const fid = document.getElementById('tech-feature-sel')?.value || '';
-  const eid = document.getElementById('tech-element-sel')?.value || '';
+  const fid = document.getElementById('tech-feature-sel')?.value
+    || document.getElementById('persp-feature-sel')?.value || '';
+  const eid = document.getElementById('tech-element-sel')?.value
+    || document.getElementById('persp-element-sel')?.value || '';
   const tid = eid || fid;
   const checked = tid ? (state.perspectives[tid] || []) : [];
   const techCodes = new Set();
@@ -450,8 +461,10 @@ function updateTechRecommended() {
 function refreshPerspAwarenessBar(code) {
   const bar = document.getElementById('persp-awareness-bar');
   if (!bar) return;
-  const fid = document.getElementById('tech-feature-sel')?.value || '';
-  const eid = document.getElementById('tech-element-sel')?.value || '';
+  const fid = document.getElementById('tech-feature-sel')?.value
+    || document.getElementById('persp-feature-sel')?.value || '';
+  const eid = document.getElementById('tech-element-sel')?.value
+    || document.getElementById('persp-element-sel')?.value || '';
   const tid = eid || fid;
   const selectedPerspNos = tid ? (state.perspectives[tid] || []) : [];
   bar.innerHTML = buildPerspAwarenessHtml(code, selectedPerspNos);
@@ -486,9 +499,11 @@ function renderTechniqueForm(code) {
 
   const savedState = techniqueInputState[code] || {};
 
-  // 現在の対象の選択済みテスト観点を取得して観点バーを構築
-  const fid = document.getElementById('tech-feature-sel')?.value || '';
-  const eid = document.getElementById('tech-element-sel')?.value || '';
+  // 現在の対象の選択済みテスト観点を取得して観点バーを構築（観点タブ選択値にもフォールバック）
+  const fid = document.getElementById('tech-feature-sel')?.value
+    || document.getElementById('persp-feature-sel')?.value || '';
+  const eid = document.getElementById('tech-element-sel')?.value
+    || document.getElementById('persp-element-sel')?.value || '';
   const tid = eid || fid;
   const selectedPerspNos = tid ? (state.perspectives[tid] || []) : [];
 
