@@ -17,6 +17,7 @@ let selectedFeatureId = null;   // 機能分解タブで選択中の機能
 let selectedTechnique = null;   // テスト技法タブで選択中の技法
 let techniqueInputState = {};   // 各技法の入力状態
 let nextId = 1;
+let _pendingCases = null;       // 生成直後のテストケース一時保持（追加ボタン用）
 
 function genId() { return 'id_' + (nextId++); }
 
@@ -1189,12 +1190,19 @@ function generateTestCases(code) {
   const selectedPerspNos = tid ? (state.perspectives[tid] || []) : [];
   const perspNames = selectedPerspNos.map(n => PERSPECTIVES.find(p => p.no === n)?.name).filter(Boolean).join(', ') || '—';
 
-  let cases = [];
+  const featureName = feature?.name || '';
+  const elementName = element?.name || '';
 
+  // デシジョンテーブルは対話型専用処理
+  if (code === 'decision') {
+    generateDecisionTableInteractive(fid, eid, featureName, elementName, perspNames);
+    return;
+  }
+
+  let cases = [];
   switch (code) {
     case 'equivalence': cases = genEquivalence(); break;
     case 'boundary':    cases = genBoundary(); break;
-    case 'decision':    cases = genDecision(); break;
     case 'allpairs':    cases = genAllPairs(); break;
     case 'orthogonal':  cases = genOrthogonal(); break;
     case 'state':       cases = genState(); break;
@@ -1209,15 +1217,16 @@ function generateTestCases(code) {
 
   const techName = TECHNIQUES.find(t => t.code === code)?.name || code;
 
+  // グローバル変数に一時保持（onclickにJSONを埋め込む代わり）
+  _pendingCases = { cases, fid, eid, featureName, elementName, perspNames, techName };
+
   // 結果プレビュー表示
   const resultArea = document.getElementById('tech-result-area');
   resultArea.classList.remove('hidden');
   let tableHtml = `
     <div class="result-header">
       <h4>生成結果（${cases.length}件）</h4>
-      <button class="btn-primary" onclick="addGeneratedCases(${JSON.stringify(cases).replace(/"/g,'&quot;')}, '${fid}','${eid}','${escHtml(feature?.name||'')}','${escHtml(element?.name||'')}','${perspNames}','${techName}')">
-        ＋ テストケースに追加
-      </button>
+      <button class="btn-primary" onclick="addPendingCases()">＋ テストケースに追加</button>
     </div>
     <div class="result-table-wrap">
     <table class="data-table result-table">
@@ -1237,7 +1246,10 @@ function generateTestCases(code) {
   resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function addGeneratedCases(cases, fid, eid, featureName, elementName, perspNames, techName) {
+// 通常技法のテストケース追加（グローバル変数から取得）
+function addPendingCases() {
+  if (!_pendingCases) return;
+  const { cases, fid, eid, featureName, elementName, perspNames, techName } = _pendingCases;
   cases.forEach(c => {
     state.testCases.push({
       id: genId(),
@@ -1253,6 +1265,103 @@ function addGeneratedCases(cases, fid, eid, featureName, elementName, perspNames
     });
   });
   showToast(`${cases.length}件のテストケースを追加しました`, 'success');
+  updateTestCaseCount();
+  autoSave();
+}
+
+// デシジョンテーブル：対話型テーブル表示
+function generateDecisionTableInteractive(fid, eid, featureName, elementName, perspNames) {
+  const s = techniqueInputState['decision'] || {};
+  const conditions = s.conditions || [];
+  const actions = s.actions || [];
+  if (!conditions.length) { showToast('条件を入力してください', 'warn'); return; }
+
+  const allValueArrays = conditions.map(c => c.values.split(',').map(v => v.trim()));
+  const combos = cartesian(allValueArrays);
+  const techName = 'デシジョンテーブル';
+
+  // 追加時用にコンテキストを保持
+  _pendingCases = { type: 'decision', fid, eid, featureName, elementName, perspNames, techName, conditions, actions, combos };
+
+  const resultArea = document.getElementById('tech-result-area');
+  resultArea.classList.remove('hidden');
+
+  let html = `
+    <div class="result-header">
+      <h4>デシジョンテーブル（${combos.length}ルール）</h4>
+      <button class="btn-primary" onclick="addDecisionTableCases()">＋ テストケースに追加</button>
+    </div>
+    <p class="dt-hint-text">各ルール列に対して適用されるアクションにチェックを入れてください</p>
+    <div class="result-table-wrap">
+    <table class="data-table dt-interactive-table">
+      <thead>
+        <tr>
+          <th class="dt-label-col">条件 / アクション</th>
+          ${combos.map((_, i) => `<th class="dt-rule-col">R${i + 1}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  // 条件行
+  conditions.forEach((cond, ci) => {
+    html += `<tr class="dt-cond-row">
+      <td class="dt-item-label"><span class="dt-badge dt-badge-cond">条件</span>${escHtml(cond.name)}</td>
+      ${combos.map(combo => `<td class="dt-val-cell">${escHtml(combo[ci])}</td>`).join('')}
+    </tr>`;
+  });
+
+  // 区切り
+  html += `<tr class="dt-sep-row"><td colspan="${combos.length + 1}">▼ アクション（該当するものにチェック）</td></tr>`;
+
+  // アクション行（チェックボックス）
+  actions.forEach((act, ai) => {
+    html += `<tr class="dt-act-row">
+      <td class="dt-item-label"><span class="dt-badge dt-badge-act">アクション</span>${escHtml(act.name)}</td>
+      ${combos.map((_, ri) => `
+        <td class="dt-check-cell">
+          <input type="checkbox" class="dt-action-check" data-rule="${ri}" data-action="${ai}" data-name="${escHtml(act.name)}">
+        </td>`).join('')}
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  resultArea.innerHTML = html;
+  resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// デシジョンテーブルのチェックボックス状態からテストケース追加
+function addDecisionTableCases() {
+  if (!_pendingCases || _pendingCases.type !== 'decision') return;
+  const { fid, eid, featureName, elementName, perspNames, techName, conditions, actions, combos } = _pendingCases;
+
+  // ルールごとにチェックされたアクション名を収集
+  const ruleActions = {};
+  document.querySelectorAll('.dt-action-check').forEach(cb => {
+    const rule = cb.dataset.rule;
+    if (!ruleActions[rule]) ruleActions[rule] = [];
+    if (cb.checked) ruleActions[rule].push(cb.dataset.name);
+  });
+
+  combos.forEach((combo, ri) => {
+    const condStr = conditions.map((c, ci) => `${c.name} = ${combo[ci]}`).join(', ');
+    const checkedActions = ruleActions[ri] || [];
+    const expectedStr = checkedActions.length ? checkedActions.join(' / ') : '（アクションなし）';
+    state.testCases.push({
+      id: genId(),
+      featureId: fid,
+      featureName,
+      elementId: eid,
+      elementName,
+      perspectiveNames: perspNames,
+      technique: techName,
+      condition: `ルール${ri + 1}: ${condStr}`,
+      data: combo.join(' / '),
+      expected: expectedStr,
+    });
+  });
+
+  showToast(`${combos.length}件のテストケースを追加しました`, 'success');
   updateTestCaseCount();
   autoSave();
 }
@@ -1342,27 +1451,7 @@ function genBoundary() {
   return cases;
 }
 
-// デシジョンテーブル
-function genDecision() {
-  const s = techniqueInputState['decision'] || {};
-  const conditions = s.conditions || [];
-  const actions = s.actions || [];
-  if (!conditions.length) { showToast('条件を入力してください', 'warn'); return []; }
-
-  // 全組み合わせ生成
-  const allValueArrays = conditions.map(c => c.values.split(',').map(v => v.trim()));
-  const combos = cartesian(allValueArrays);
-
-  return combos.map((combo, i) => {
-    const condStr = conditions.map((c, j) => `${c.name}=${combo[j]}`).join(', ');
-    const actionStr = actions.map(a => a.name).join(', ') || '（アクションを記入）';
-    return {
-      condition: `ルール${i+1}: ${condStr}`,
-      data: combo.join(' / '),
-      expected: actionStr + ' — （該当するアクションに○を記入してください）',
-    };
-  });
-}
+// デシジョンテーブル生成はgenerateDecisionTableInteractive()に統合したため不使用
 
 // 直積（全組み合わせ）ヘルパー
 function cartesian(arrays) {
