@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>QualisCreate ユーザーマニュアル</title>
+  <style>
+    /* ================= 基本設定 ================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Meiryo", "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      font-size: 11pt;
+      line-height: 1.75;
+      color: #222;
+      background: #fff;
+      padding: 0;
+    }
+
+    /* ================= 印刷設定 ================= */
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 20mm;
+    }
+    @media print {
+      .no-print { display: none; }
+      h1, h2, h3, h4 { page-break-after: avoid; }
+      .page-break { page-break-before: always; }
+      .avoid-break { page-break-inside: avoid; }
+      table { page-break-inside: avoid; }
+    }
+    @media screen {
+      body { max-width: 210mm; margin: 0 auto; padding: 20mm 16mm; }
+    }
+
+    /* ================= 表紙 ================= */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 240mm;
+      text-align: center;
+    }
+    .cover-logo {
+      font-size: 52pt;
+      font-weight: 900;
+      color: #2563eb;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+    .cover-tagline {
+      font-size: 16pt;
+      color: #64748b;
+      margin-bottom: 48px;
+    }
+    .cover-title {
+      font-size: 24pt;
+      font-weight: 700;
+      color: #1e293b;
+      border-top: 3px solid #2563eb;
+      border-bottom: 3px solid #2563eb;
+      padding: 14px 40px;
+      margin-bottom: 48px;
+    }
+    .cover-meta {
+      font-size: 11pt;
+      color: #64748b;
+      line-height: 2;
+    }
+    .cover-version {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      font-size: 10pt;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* ================= 目次 ================= */
+    .toc-section { margin-bottom: 32px; }
+    .toc-title {
+      font-size: 16pt;
+      font-weight: 700;
+      color: #1e293b;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+    .toc-list { list-style: none; }
+    .toc-list li { padding: 3px 0; border-bottom: 1px dotted #cbd5e1; display: flex; }
+    .toc-list li a { color: #1e40af; text-decoration: none; flex: 1; }
+    .toc-list li a:hover { text-decoration: underline; }
+    .toc-list .toc-h2 { font-weight: 700; margin-top: 10px; font-size: 11pt; }
+    .toc-list .toc-h3 { padding-left: 16px; font-size: 10.5pt; color: #334155; }
+    .toc-list .toc-h3 a { color: #334155; }
+
+    /* ================= 章・節 ================= */
+    h1.chapter {
+      font-size: 20pt;
+      font-weight: 900;
+      color: #fff;
+      background: #2563eb;
+      padding: 14px 20px;
+      border-radius: 6px;
+      margin-bottom: 24px;
+      margin-top: 0;
+    }
+    h2.section {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e293b;
+      border-left: 5px solid #2563eb;
+      padding: 6px 12px;
+      margin: 28px 0 14px;
+      background: #eff6ff;
+    }
+    h3.subsection {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #1e40af;
+      border-bottom: 1px solid #bfdbfe;
+      padding-bottom: 4px;
+      margin: 20px 0 10px;
+    }
+    h4.item {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 14px 0 6px;
+    }
+    p { margin-bottom: 8px; }
+    ul, ol { padding-left: 22px; margin-bottom: 10px; }
+    li { margin-bottom: 4px; }
+
+    /* ================= 情報ボックス ================= */
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #2563eb;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 10.5pt;
+    }
+    .warn-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid #f59e0b;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 10.5pt;
+    }
+    .tip-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #22c55e;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 10.5pt;
+    }
+    .box-label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ================= テーブル ================= */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+      margin: 12px 0;
+    }
+    th {
+      background: #1e40af;
+      color: white;
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 700;
+    }
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+    tr:hover td { background: #eff6ff; }
+    .col-no { width: 5%; text-align: center; font-weight: 700; }
+    .col-name { width: 20%; font-weight: 600; }
+    .col-content { width: 50%; }
+    .col-tech { width: 25%; }
+
+    /* ================= ステップ表示 ================= */
+    .steps { list-style: none; padding: 0; counter-reset: step; }
+    .steps li {
+      counter-increment: step;
+      padding: 10px 12px 10px 46px;
+      position: relative;
+      border-left: 2px solid #bfdbfe;
+      margin-bottom: 6px;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: -14px;
+      top: 8px;
+      width: 26px;
+      height: 26px;
+      background: #2563eb;
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 10pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ================= タブバッジ ================= */
+    .tab-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      font-size: 9pt;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-right: 4px;
+    }
+
+    /* ================= 技法カード ================= */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .tech-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px;
+      break-inside: avoid;
+    }
+    .tech-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .tech-icon { font-size: 20px; }
+    .tech-name { font-weight: 700; font-size: 11pt; color: #1e293b; }
+    .tech-desc { font-size: 10pt; color: #475569; margin-bottom: 6px; }
+    .tech-persp {
+      font-size: 9pt;
+      color: #64748b;
+      background: #f1f5f9;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
+
+    /* ================= フッター ================= */
+    @media print {
+      @page { @bottom-center { content: counter(page); font-size: 9pt; color: #64748b; } }
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 9pt;
+      color: #94a3b8;
+      margin-top: 32px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* ================= フローチャート ================= */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      background: #eff6ff;
+      border: 2px solid #2563eb;
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: center;
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1e40af;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      font-size: 18pt;
+      color: #2563eb;
+      padding: 0 6px;
+    }
+
+    /* ================= コード風テキスト ================= */
+    code {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 9.5pt;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 3px;
+      padding: 1px 5px;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 9.5pt;
+      padding: 12px 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    kbd {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-bottom: 3px solid #94a3b8;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 9.5pt;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================
+     表紙
+====================================================== -->
+<div class="cover">
+  <div class="cover-logo">QualisCreate</div>
+  <div class="cover-tagline">テスト設計支援ツール</div>
+  <div class="cover-title">ユーザーマニュアル</div>
+  <div class="cover-meta">
+    <span class="cover-version">Ver 1.0</span><br>
+    対象 OS：Windows 10 / 11<br>
+    作成日：2026年5月
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     目次
+====================================================== -->
+<div class="toc-section">
+  <div class="toc-title">目　次</div>
+  <ul class="toc-list">
+    <li class="toc-h2"><a href="#ch1">第1章　はじめに</a></li>
+    <li class="toc-h3"><a href="#ch1-1">1.1　QualisCreate とは</a></li>
+    <li class="toc-h3"><a href="#ch1-2">1.2　動作環境</a></li>
+    <li class="toc-h3"><a href="#ch1-3">1.3　起動方法</a></li>
+    <li class="toc-h3"><a href="#ch1-4">1.4　画面構成</a></li>
+    <li class="toc-h2"><a href="#ch2">第2章　基本操作フロー</a></li>
+    <li class="toc-h2"><a href="#ch3">第3章　① 機能分解</a></li>
+    <li class="toc-h3"><a href="#ch3-1">3.1　機能を追加する</a></li>
+    <li class="toc-h3"><a href="#ch3-2">3.2　要素を追加する</a></li>
+    <li class="toc-h3"><a href="#ch3-3">3.3　編集・削除</a></li>
+    <li class="toc-h2"><a href="#ch4">第4章　② テスト観点チェック</a></li>
+    <li class="toc-h3"><a href="#ch4-1">4.1　テスト観点の選択</a></li>
+    <li class="toc-h3"><a href="#ch4-2">4.2　30のテスト観点一覧</a></li>
+    <li class="toc-h2"><a href="#ch5">第5章　③ テスト技法</a></li>
+    <li class="toc-h3"><a href="#ch5-1">5.1　技法の選択</a></li>
+    <li class="toc-h3"><a href="#ch5-2">5.2　11のテスト技法</a></li>
+    <li class="toc-h3"><a href="#ch5-3">5.3　各技法の入力方法</a></li>
+    <li class="toc-h2"><a href="#ch6">第6章　④ 出力</a></li>
+    <li class="toc-h3"><a href="#ch6-1">6.1　テストケース一覧の確認</a></li>
+    <li class="toc-h3"><a href="#ch6-2">6.2　Excel 出力</a></li>
+    <li class="toc-h2"><a href="#ch7">第7章　データの保存と読込</a></li>
+    <li class="toc-h2"><a href="#ch8">第8章　よくある質問</a></li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第1章　はじめに
+====================================================== -->
+<h1 class="chapter" id="ch1">第1章　はじめに</h1>
+
+<h2 class="section" id="ch1-1">1.1　QualisCreate とは</h2>
+
+<p>
+  QualisCreate は、テストエンジニアがテスト設計を効率的かつ網羅的に行えるよう支援する
+  ローカルデスクトップツールです。仕様書を読んで機能を分解し、テスト観点を整理し、
+  適切なテスト技法を適用してテストケースを生成、最終的に Excel ファイルとして出力するまでの
+  一連の作業を一つのツールで完結できます。
+</p>
+
+<div class="info-box">
+  <span class="box-label">📌 このツールでできること</span>
+  <ul>
+    <li>仕様書から読み取った機能・要素をツリー構造で管理</li>
+    <li>30種のテスト観点チェックリストによる観点の抜け漏れ防止</li>
+    <li>11種のテスト技法によるテストケースの自動生成</li>
+    <li>生成したテストケースの Excel（.xlsx）出力</li>
+  </ul>
+</div>
+
+<h2 class="section" id="ch1-2">1.2　動作環境</h2>
+
+<table class="avoid-break">
+  <thead>
+    <tr><th>項目</th><th>要件</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>OS</td><td>Windows 10 / Windows 11</td></tr>
+    <tr><td>ランタイム</td><td>Node.js v18 以上（Electron に同梱）</td></tr>
+    <tr><td>ディスク空き容量</td><td>200 MB 以上</td></tr>
+    <tr><td>インターネット接続</td><td>不要（完全ローカル動作）</td></tr>
+  </tbody>
+</table>
+
+<h2 class="section" id="ch1-3">1.3　起動方法</h2>
+
+<p>ツールフォルダ内でターミナル（PowerShell など）を開き、以下のコマンドを実行します。</p>
+
+<pre>cd D:\Works\02.業務\claude\QualisCreate
+npx electron .</pre>
+
+<div class="tip-box">
+  <span class="box-label">💡 ヒント</span>
+  npm start コマンドでも同様に起動できます。起動時に前回の作業状態が自動的に復元されます。
+</div>
+
+<h2 class="section" id="ch1-4">1.4　画面構成</h2>
+
+<p>画面は大きく <strong>ヘッダー</strong> と <strong>メインエリア</strong> で構成されます。</p>
+
+<div class="info-box avoid-break">
+  <span class="box-label">📐 ヘッダー</span>
+  <ul>
+    <li><strong>タブナビゲーション</strong>：①機能分解 → ②テスト観点 → ③テスト技法 → ④出力 の4ステップ</li>
+    <li><strong>💾 保存ボタン</strong>：現在の作業状態を JSON ファイルに保存</li>
+    <li><strong>📂 読込ボタン</strong>：保存済み JSON ファイルを読み込む</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第2章　基本操作フロー
+====================================================== -->
+<h1 class="chapter" id="ch2">第2章　基本操作フロー</h1>
+
+<p>QualisCreate は以下の4ステップで使用します。各ステップは画面上部のタブで切り替えます。</p>
+
+<div class="flow">
+  <div class="flow-step">① 機能分解<br><span style="font-size:8.5pt;font-weight:400;">機能・要素を入力</span></div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">② テスト観点<br><span style="font-size:8.5pt;font-weight:400;">30観点をチェック</span></div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">③ テスト技法<br><span style="font-size:8.5pt;font-weight:400;">技法でケース生成</span></div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">④ 出力<br><span style="font-size:8.5pt;font-weight:400;">Excel で書き出し</span></div>
+</div>
+
+<ol>
+  <li>
+    <strong>機能分解（①）</strong>：仕様書を読み込み、機能と各機能に属する要素を入力します。
+    ここで登録した機能・要素がすべての後続ステップで対象として使われます。
+  </li>
+  <li>
+    <strong>テスト観点チェック（②）</strong>：機能や要素ごとに 30 種のテスト観点から
+    該当するものにチェックを入れます。チェックした観点に基づいて推奨テスト技法が提示されます。
+  </li>
+  <li>
+    <strong>テスト技法（③）</strong>：推奨された（または任意の）技法を選択し、
+    各技法の入力フォームにパラメーターを入力してテストケースを生成・追加します。
+  </li>
+  <li>
+    <strong>出力（④）</strong>：生成したテストケースを確認し、Excel ファイルとして出力します。
+  </li>
+</ol>
+
+<div class="tip-box">
+  <span class="box-label">💡 ステップをスキップする場合</span>
+  タブは自由に切り替え可能です。②テスト観点をスキップして直接③テスト技法から始めることもできますが、
+  推奨技法の表示や観点の紐づけが行われないため、①→②→③→④の順に作業することを推奨します。
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第3章　① 機能分解
+====================================================== -->
+<h1 class="chapter" id="ch3">第3章　① 機能分解</h1>
+
+<p>
+  仕様書を読んで、テスト対象のシステムを <strong>「機能」</strong> と各機能に属する
+  <strong>「要素」</strong> に分解して入力します。
+</p>
+
+<div class="info-box">
+  <span class="box-label">📝 機能と要素の関係</span>
+  <p>例：機能「ユーザー登録」→ 要素「ユーザー名入力欄」「メールアドレス入力欄」「パスワード入力欄」</p>
+  <p>機能は大分類、要素は機能内の個々の入力・操作・画面項目などに相当します。</p>
+</div>
+
+<h2 class="section" id="ch3-1">3.1　機能を追加する</h2>
+
+<ol class="steps">
+  <li>左ペイン上部の <strong>「＋ 機能追加」</strong> ボタンをクリックします。</li>
+  <li>入力フォームが展開されます。<strong>機能名</strong>（必須）と説明（任意）を入力します。</li>
+  <li><strong>「追加」</strong> ボタンをクリックすると機能一覧に追加されます。</li>
+</ol>
+
+<h2 class="section" id="ch3-2">3.2　要素を追加する</h2>
+
+<ol class="steps">
+  <li>左ペインの機能一覧から、要素を追加したい <strong>機能カードをクリック</strong> して選択します。</li>
+  <li>右ペインに「要素一覧」が表示され、上部の <strong>「＋ 要素追加」</strong> ボタンが有効になります。</li>
+  <li>ボタンをクリックし、要素名と説明を入力して <strong>「追加」</strong> をクリックします。</li>
+</ol>
+
+<div class="warn-box">
+  <span class="box-label">⚠ 注意</span>
+  機能が選択されていない状態では「＋ 要素追加」ボタンは無効（グレーアウト）になります。
+  必ず先に機能を選択してから要素を追加してください。
+</div>
+
+<h2 class="section" id="ch3-3">3.3　編集・削除</h2>
+
+<p>
+  各機能カード・要素カードの右端にある <strong>「✏ 編集」</strong> ボタンでモーダルが開き、
+  名前と説明を変更できます。<strong>「🗑 削除」</strong> ボタンで削除します。
+</p>
+
+<div class="warn-box">
+  <span class="box-label">⚠ 機能削除時の注意</span>
+  機能を削除すると、その機能に属する全要素と、その機能・要素に対して選択したテスト観点、
+  生成したテストケースもすべて削除されます。
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第4章　② テスト観点チェック
+====================================================== -->
+<h1 class="chapter" id="ch4">第4章　② テスト観点チェック</h1>
+
+<p>
+  30 種のテスト観点から、対象の機能・要素に対してテスト時に意識すべき観点を選択します。
+  選択した観点に基づいて、推奨するテスト技法が画面下部に表示されます。
+</p>
+
+<h2 class="section" id="ch4-1">4.1　テスト観点の選択手順</h2>
+
+<ol class="steps">
+  <li>
+    画面上部の <strong>「対象機能」</strong> ドロップダウンで機能を選択します。
+    （機能が１つしかない場合は自動選択されます）
+  </li>
+  <li>
+    必要に応じて <strong>「対象要素」</strong> ドロップダウンで特定の要素に絞り込みます。
+    「全体（機能単位）」のままにすると機能全体に対する観点として記録されます。
+  </li>
+  <li>
+    30 種の観点カードが表示されます。該当する観点の <strong>チェックボックス</strong> にチェックを入れます。
+    チェックを入れた観点は背景色が変わり視覚的に区別されます。
+  </li>
+  <li>
+    画面下部の <strong>「推奨テスト技法：」</strong> バーにチェックした観点に対応する技法が表示されます。
+  </li>
+</ol>
+
+<div class="info-box">
+  <span class="box-label">📌 ボタン操作</span>
+  <ul>
+    <li><strong>全選択</strong>：全30観点にチェックを入れます。</li>
+    <li><strong>チェッククリア</strong>：全チェックを解除します。</li>
+  </ul>
+</div>
+
+<div class="tip-box">
+  <span class="box-label">💡 機能単位と要素単位の使い分け</span>
+  機能全体に共通する観点（例：負荷の観点、セキュリティの観点）は機能単位で設定し、
+  個別の入力項目に関する観点（同値・境界値など）は要素単位で設定するのが効果的です。
+</div>
+
+<h2 class="section" id="ch4-2">4.2　30のテスト観点一覧</h2>
+
+<table class="avoid-break">
+  <thead>
+    <tr>
+      <th class="col-no">No.</th>
+      <th class="col-name">観点名</th>
+      <th class="col-content">内容</th>
+      <th class="col-tech">関連技法</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="col-no">1</td><td class="col-name">同値の観点</td><td>処理が同じとみなせるグループの代表値を用いる</td><td>同値分割</td></tr>
+    <tr><td class="col-no">2</td><td class="col-name">境界値の観点</td><td>処理が異なるグループの境界値を用いる</td><td>境界値分析</td></tr>
+    <tr><td class="col-no">3</td><td class="col-name">状態の観点</td><td>状態の遷移が伴う動作</td><td>状態遷移テスト</td></tr>
+    <tr><td class="col-no">4</td><td class="col-name">優先の観点</td><td>処理に優先度が関係する動作</td><td>デシジョンテーブル</td></tr>
+    <tr><td class="col-no">5</td><td class="col-name">時間の観点</td><td>日付・時刻・時間が関係する動作</td><td>境界値分析、同値分割</td></tr>
+    <tr><td class="col-no">6</td><td class="col-name">資源の観点</td><td>限られた資源を最大限まで使用する</td><td>境界値分析</td></tr>
+    <tr><td class="col-no">7</td><td class="col-name">論理の観点</td><td>複雑な論理が関係する</td><td>デシジョンテーブル、原因結果グラフ</td></tr>
+    <tr><td class="col-no">8</td><td class="col-name">組み合わせの観点</td><td>いくつかの機能や要因の組み合わせ</td><td>All-Pairs法、直交法</td></tr>
+    <tr><td class="col-no">9</td><td class="col-name">タイミングの観点</td><td>イベントの同時発生などタイミングが関係する</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">10</td><td class="col-name">中断の観点</td><td>操作などを途中で取りやめるテスト</td><td>エラー推測</td></tr>
+    <tr><td class="col-no">11</td><td class="col-name">繰り返しの観点</td><td>同じ操作を何度も繰り返す</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">12</td><td class="col-name">順序の観点</td><td>処理の待ち合わせによる処理順序が関係する動作</td><td>シナリオテスト、状態遷移テスト</td></tr>
+    <tr><td class="col-no">13</td><td class="col-name">競合の観点</td><td>同じ資源の奪い合いが起きる動作</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">14</td><td class="col-name">例外の観点</td><td>例外的な条件での動作</td><td>エラー推測、異常値分析</td></tr>
+    <tr><td class="col-no">15</td><td class="col-name">割り込みの観点</td><td>機能が動作中に別機能を動作させる</td><td>シナリオテスト、エラー推測</td></tr>
+    <tr><td class="col-no">16</td><td class="col-name">同時動作の観点</td><td>機能が動作中に別機能を同時に動作させる</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">17</td><td class="col-name">移行動作の観点</td><td>ある機能を操作中に可能な別機能の操作に移行する</td><td>シナリオテスト、状態遷移テスト</td></tr>
+    <tr><td class="col-no">18</td><td class="col-name">異常入力の観点</td><td>規定外の入力を与える</td><td>エラー推測、異常値分析</td></tr>
+    <tr><td class="col-no">19</td><td class="col-name">動作しない観点</td><td>機能が動作しない条件で行う</td><td>同値分割、エラー推測</td></tr>
+    <tr><td class="col-no">20</td><td class="col-name">矛盾設定の観点</td><td>矛盾した設定を行って動作させる</td><td>エラー推測、デシジョンテーブル</td></tr>
+    <tr><td class="col-no">21</td><td class="col-name">切断再接続の観点</td><td>動作中に強制的にケーブルを切断、その後再接続する</td><td>エラー推測</td></tr>
+    <tr><td class="col-no">22</td><td class="col-name">負荷の観点</td><td>システムに高い負荷をかける</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">23</td><td class="col-name">性能の観点</td><td>システムの性能を測定する</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">24</td><td class="col-name">ユーザの観点</td><td>ユーザの利用シーンを想定する</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">25</td><td class="col-name">セキュリティの観点</td><td>システムのセキュリティに関するテスト</td><td>異常値分析、エラー推測</td></tr>
+    <tr><td class="col-no">26</td><td class="col-name">構成の観点</td><td>動作するソフトウェアの構成、ハードウェア構成など</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">27</td><td class="col-name">ユーザビリティの観点</td><td>ユーザの使い勝手に関するテスト</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">28</td><td class="col-name">保守の観点</td><td>データ設定、データ変換、リモートメンテナンスなど</td><td>シナリオテスト</td></tr>
+    <tr><td class="col-no">29</td><td class="col-name">プライバシーの観点</td><td>個人情報保護の対象となるユーザデータの扱い</td><td>シナリオテスト、エラー推測</td></tr>
+    <tr><td class="col-no">30</td><td class="col-name">意地悪の観点</td><td>意地悪でキーの連打などシステムへの異常操作を行う</td><td>エラー推測、異常値分析</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第5章　③ テスト技法
+====================================================== -->
+<h1 class="chapter" id="ch5">第5章　③ テスト技法</h1>
+
+<p>
+  テスト技法を選択し、入力フォームにパラメーターを設定してテストケースを生成します。
+  ②テスト観点で選択した観点に基づき、推奨技法がハイライト表示されます。
+</p>
+
+<h2 class="section" id="ch5-1">5.1　技法の選択と画面構成</h2>
+
+<p>技法タブは左右2ペインで構成されます。</p>
+
+<div class="info-box avoid-break">
+  <span class="box-label">📐 左ペイン（技法選択サイドバー）</span>
+  <ul>
+    <li><strong>対象機能 / 対象要素</strong>：テストケースに紐づける機能・要素を選択</li>
+    <li><strong>推奨技法</strong>：②テスト観点で選択した観点に対応する技法がチップ表示</li>
+    <li><strong>技法一覧</strong>：11種の技法ボタン。推奨技法には「推奨」バッジが付きます</li>
+  </ul>
+</div>
+
+<div class="info-box avoid-break">
+  <span class="box-label">📐 右ペイン（技法フォーム）</span>
+  <ul>
+    <li><strong>意識すべきテスト観点バー</strong>：②で選択した観点が一覧表示。この技法に関連する観点はオレンジ色でハイライト</li>
+    <li><strong>入力フォーム</strong>：各技法に対応したパラメーター入力欄</li>
+    <li><strong>テストケース生成ボタン</strong>：入力内容からテストケースを生成</li>
+    <li><strong>テストケース追加ボタン</strong>：生成結果を確認後、テストケース一覧に追加</li>
+  </ul>
+</div>
+
+<h2 class="section" id="ch5-2">5.2　11のテスト技法</h2>
+
+<div class="tech-grid">
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">⚖</span>
+      <span class="tech-name">同値分割</span>
+    </div>
+    <div class="tech-desc">処理が同じとみなせるグループ（同値クラス）から代表値を選んでテストします。有効同値クラスと無効同値クラスに分けて設計します。</div>
+    <div class="tech-persp">関連観点：同値の観点、動作しない観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">📏</span>
+      <span class="tech-name">境界値分析</span>
+    </div>
+    <div class="tech-desc">同値クラスの境界上の値とその前後をテストします。バグが発生しやすい境界値付近を重点的にカバーします。</div>
+    <div class="tech-persp">関連観点：境界値の観点、時間の観点、資源の観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">📋</span>
+      <span class="tech-name">デシジョンテーブル</span>
+    </div>
+    <div class="tech-desc">複数の条件の組み合わせとアクション（期待動作）の関係を表で整理してテストします。条件が多い複雑なロジックに適しています。</div>
+    <div class="tech-persp">関連観点：論理の観点、優先の観点、矛盾設定の観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">🔀</span>
+      <span class="tech-name">All-Pairs法</span>
+    </div>
+    <div class="tech-desc">すべての因子間の2因子ペア組み合わせをカバーする最小のテストセットを自動生成します。組み合わせ爆発を防ぎながら網羅性を確保します。</div>
+    <div class="tech-persp">関連観点：組み合わせの観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">🔢</span>
+      <span class="tech-name">直交法</span>
+    </div>
+    <div class="tech-desc">直交表（L4〜L18）を用いて因子の水準の組み合わせを効率的に選出します。全水準を均等に試験でき、品質の偏りを防ぎます。</div>
+    <div class="tech-persp">関連観点：組み合わせの観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">🔄</span>
+      <span class="tech-name">状態遷移テスト</span>
+    </div>
+    <div class="tech-desc">状態・イベント・遷移先の関係を整理し、各遷移パスをテストします。画面遷移やモード切り替えのある機能に適しています。</div>
+    <div class="tech-persp">関連観点：状態の観点、順序の観点、移行動作の観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">🗂</span>
+      <span class="tech-name">原因結果グラフ</span>
+    </div>
+    <div class="tech-desc">原因（入力条件）と結果（出力）の論理的な関係を整理してテストケースを導出します。複数入力の組み合わせが出力を決定する場合に有効です。</div>
+    <div class="tech-persp">関連観点：論理の観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">📖</span>
+      <span class="tech-name">シナリオテスト</span>
+    </div>
+    <div class="tech-desc">ユーザの利用シーンを想定したシナリオ（手順のストーリー）を作成してテストします。ユーザ視点での品質確認に適しています。</div>
+    <div class="tech-persp">関連観点：ユーザの観点、タイミング・負荷・性能の観点など</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">🔍</span>
+      <span class="tech-name">エラー推測</span>
+    </div>
+    <div class="tech-desc">経験と知識から発生しやすいエラーを推測してテストケースを設計します。過去の不具合事例や「こうすれば壊れそう」という直感を活かします。</div>
+    <div class="tech-persp">関連観点：例外・異常入力・矛盾設定・切断再接続の観点など</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">⚠</span>
+      <span class="tech-name">異常値・特異値分析</span>
+    </div>
+    <div class="tech-desc">入力フィールドの型・制約から異常値（型違い・範囲外・空など）と特異値（最大値・最小値・NULL など）のテストケースを自動生成します。</div>
+    <div class="tech-persp">関連観点：異常入力・例外・セキュリティ・意地悪の観点</div>
+  </div>
+  <div class="tech-card avoid-break">
+    <div class="tech-card-header">
+      <span class="tech-icon">🌐</span>
+      <span class="tech-name">CFD法（制御フロー）</span>
+    </div>
+    <div class="tech-desc">処理の制御フロー（条件分岐・ループ）に沿ったテストケースを設計します。各パスが少なくとも一度実行されることを目指します。</div>
+    <div class="tech-persp">関連観点：論理の観点</div>
+  </div>
+</div>
+
+<h2 class="section" id="ch5-3">5.3　各技法の入力方法</h2>
+
+<h3 class="subsection">同値分割</h3>
+<ol>
+  <li>「＋ クラス追加」ボタンで同値クラスを追加します。</li>
+  <li>各クラスの種別（有効／無効）、説明、代表値を入力します。</li>
+  <li>「テストケース生成」をクリックして確認後、「テストケース追加」で一覧に登録します。</li>
+</ol>
+
+<h3 class="subsection">境界値分析</h3>
+<ol>
+  <li>「＋ 境界追加」ボタンで境界を追加します。</li>
+  <li>各境界の説明と境界値を入力します。ツールが境界値とその前後の値を自動生成します。</li>
+  <li>「テストケース生成」→「テストケース追加」で登録します。</li>
+</ol>
+
+<h3 class="subsection">デシジョンテーブル</h3>
+<ol>
+  <li>「条件」を追加し、各条件の名前と True/False の説明を入力します。</li>
+  <li>「アクション（期待結果）」を追加します。</li>
+  <li>「テストケース生成」をクリックすると条件の組み合わせ表が生成されます。</li>
+  <li>各ルール列でどのアクションが適用されるかをチェックボックスで選択します。</li>
+  <li>「テストケース追加」で一覧に登録します。</li>
+</ol>
+
+<h3 class="subsection">All-Pairs法</h3>
+<ol>
+  <li>「＋ 因子追加」ボタンで因子を追加します（例：OS、ブラウザ、言語設定）。</li>
+  <li>各因子の水準をカンマ区切りで入力します（例：<code>Windows,Mac,Linux</code>）。</li>
+  <li>「テストケース生成」をクリックするとペアワイズカバレッジを満たす最小テストセットが生成されます。</li>
+</ol>
+
+<h3 class="subsection">直交法</h3>
+<ol>
+  <li>因子と各水準をカンマ区切りで入力します。</li>
+  <li>因子数・水準数に最適な直交表（L4〜L18）が自動選択されます。</li>
+  <li>「テストケース生成」→「テストケース追加」で登録します。</li>
+</ol>
+
+<div class="info-box avoid-break">
+  <span class="box-label">📌 利用可能な直交表</span>
+  <table>
+    <thead><tr><th>直交表</th><th>実験数（テストケース数）</th><th>最大因子数</th><th>水準数</th></tr></thead>
+    <tbody>
+      <tr><td>L4</td><td>4</td><td>3</td><td>2</td></tr>
+      <tr><td>L8</td><td>8</td><td>7</td><td>2</td></tr>
+      <tr><td>L9</td><td>9</td><td>4</td><td>3</td></tr>
+      <tr><td>L12</td><td>12</td><td>11</td><td>2</td></tr>
+      <tr><td>L16</td><td>16</td><td>15</td><td>2</td></tr>
+      <tr><td>L18</td><td>18</td><td>7（3水準）＋1（2水準）</td><td>2/3 混在</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3 class="subsection">状態遷移テスト</h3>
+<ol>
+  <li>「＋ 状態追加」で状態を追加します（例：ログアウト中、ログイン中）。</li>
+  <li>「＋ 遷移追加」で遷移を追加します。元状態・イベント・遷移先状態を指定します。</li>
+  <li>「テストケース生成」をクリックすると各遷移がテストケースとして生成されます。</li>
+</ol>
+
+<h3 class="subsection">原因結果グラフ</h3>
+<ol>
+  <li>「＋ 原因追加」で入力条件を追加します。</li>
+  <li>「＋ 結果追加」で出力・アクションを追加します。</li>
+  <li>原因と結果の関係をチェックボックスで指定します。</li>
+  <li>「テストケース生成」→「テストケース追加」で登録します。</li>
+</ol>
+
+<h3 class="subsection">シナリオテスト</h3>
+<ol>
+  <li>「＋ シナリオ追加」でシナリオを追加します。</li>
+  <li>各シナリオの名前、前提条件、手順（改行区切り）、期待結果を入力します。</li>
+  <li>「テストケース追加」で一覧に登録します。</li>
+</ol>
+
+<h3 class="subsection">エラー推測</h3>
+<ol>
+  <li>「＋ エラー追加」でエラーケースを追加します。</li>
+  <li>推測するエラーの内容・操作・期待する動作（エラーメッセージ表示など）を入力します。</li>
+  <li>「テストケース追加」で一覧に登録します。</li>
+</ol>
+
+<h3 class="subsection">異常値・特異値分析</h3>
+<ol>
+  <li>「＋ フィールド追加」で入力フィールドを追加します。</li>
+  <li>フィールド名、型（文字列／数値／日付など）、制約（最大長・範囲など）を入力します。</li>
+  <li>「テストケース生成」をクリックすると型・制約に基づいた異常値・特異値ケースが自動生成されます。</li>
+</ol>
+
+<h3 class="subsection">CFD法（制御フロー）</h3>
+<ol>
+  <li>「＋ ノード追加」で処理ノード（開始・処理・条件分岐・終了）を追加します。</li>
+  <li>ノード間の接続（フロー）を定義します。</li>
+  <li>「テストケース生成」をクリックすると制御フローパスに沿ったケースが生成されます。</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第6章　④ 出力
+====================================================== -->
+<h1 class="chapter" id="ch6">第6章　④ 出力</h1>
+
+<h2 class="section" id="ch6-1">6.1　テストケース一覧の確認</h2>
+
+<p>出力タブでは生成したすべてのテストケースを一覧で確認できます。</p>
+
+<table class="avoid-break">
+  <thead>
+    <tr>
+      <th>列名</th>
+      <th>内容</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>No.</td><td>テストケースの通し番号</td></tr>
+    <tr><td>機能</td><td>対象機能名</td></tr>
+    <tr><td>要素</td><td>対象要素名（機能単位の場合は空白）</td></tr>
+    <tr><td>テスト観点</td><td>関連するテスト観点の名称</td></tr>
+    <tr><td>テスト技法</td><td>使用したテスト技法名</td></tr>
+    <tr><td>テスト条件</td><td>テストの前提・条件</td></tr>
+    <tr><td>テストデータ</td><td>使用する入力値や操作内容</td></tr>
+    <tr><td>期待結果</td><td>テストが合格となる期待する動作</td></tr>
+    <tr><td>操作</td><td>テストケースの削除ボタン</td></tr>
+  </tbody>
+</table>
+
+<h3 class="subsection">フィルター機能</h3>
+<p>
+  「機能フィルター」と「技法フィルター」のドロップダウンで表示するテストケースを絞り込めます。
+  絞り込み中の件数は右隣に表示されます。
+</p>
+
+<h2 class="section" id="ch6-2">6.2　Excel 出力</h2>
+
+<ol class="steps">
+  <li>「📥 Excelで出力」ボタンをクリックします。</li>
+  <li>ファイル保存ダイアログが開きます。保存先とファイル名を指定してください。</li>
+  <li>Excel ファイル（.xlsx）が生成されます。機能ごとにシートが分かれます。</li>
+</ol>
+
+<div class="info-box avoid-break">
+  <span class="box-label">📌 Excel ファイルの構成</span>
+  <ul>
+    <li>機能ごとに別シートが作成されます</li>
+    <li>各シートには No.・機能・要素・テスト観点・技法・条件・データ・期待結果の列があります</li>
+    <li>ヘッダー行は青背景・白文字で自動フォーマットされます</li>
+  </ul>
+</div>
+
+<div class="warn-box">
+  <span class="box-label">⚠ 注意</span>
+  「🗑 全テストケース削除」ボタンをクリックするとすべてのテストケースが削除されます。
+  この操作は取り消せません。削除前に必ず Excel 出力しておくことを推奨します。
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第7章　データの保存と読込
+====================================================== -->
+<h1 class="chapter" id="ch7">第7章　データの保存と読込</h1>
+
+<p>
+  QualisCreate はアプリ終了時に作業状態を自動保存します。
+  次回起動時に自動的に前回の状態が復元されます。
+  また、手動での保存・読込にも対応しています。
+</p>
+
+<h2 class="section">7.1　自動保存</h2>
+<p>
+  機能・要素の追加・編集・削除、テスト観点のチェック変更、テストケースの追加・削除などの
+  操作を行うたびに自動的に状態が保存されます。保存先はアプリのユーザーデータフォルダです。
+</p>
+
+<h2 class="section">7.2　手動保存・読込</h2>
+<p>
+  ヘッダー右側の <kbd>💾</kbd> ボタンで任意のファイルパスに JSON 形式で保存できます。
+  <kbd>📂</kbd> ボタンで保存した JSON ファイルを読み込むことができます。
+</p>
+
+<div class="tip-box">
+  <span class="box-label">💡 活用シーン</span>
+  <ul>
+    <li>プロジェクト単位でデータを JSON ファイルとして管理する</li>
+    <li>チームメンバーに作業状態を共有する（JSON ファイルを共有→読込）</li>
+    <li>定期的にバックアップを取る</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ======================================================
+     第8章　よくある質問
+====================================================== -->
+<h1 class="chapter" id="ch8">第8章　よくある質問</h1>
+
+<h3 class="subsection">Q. 推奨技法が表示されない</h3>
+<div class="tip-box">
+  A. ②テスト観点タブで機能をドロップダウンから選択してからチェックを入れてください。
+  機能を選択しないとチェック内容が保存されません。機能が1つしかない場合は自動選択されます。
+</div>
+
+<h3 class="subsection">Q. テスト観点の「意識すべき観点バー」が空欄になる</h3>
+<div class="tip-box">
+  A. ②テスト観点タブで機能・観点を選択した後、③テスト技法タブに移動すると観点が同期されます。
+  技法タブの「対象機能」ドロップダウンで機能を選択すると観点バーが更新されます。
+</div>
+
+<h3 class="subsection">Q. テストケースに機能・要素名が表示されない</h3>
+<div class="tip-box">
+  A. ③テスト技法タブの左ペインで「対象機能」と「対象要素」を選択してからテストケースを生成してください。
+  対象を選択せずに生成・追加したケースは機能・要素が未設定になります。
+</div>
+
+<h3 class="subsection">Q. デシジョンテーブルで期待結果を選択できない</h3>
+<div class="tip-box">
+  A. 「テストケース生成」ボタンをクリックすると条件の組み合わせ表が表示されます。
+  表の各列（ルール）に対して、下段のアクション行のチェックボックスで期待結果を選択してください。
+  その後「テストケース追加」をクリックします。
+</div>
+
+<h3 class="subsection">Q. Excel 出力時にエラーが発生する</h3>
+<div class="tip-box">
+  A. テストケースが1件もない状態では出力できません。また、保存先フォルダに書き込み権限があるか確認してください。
+</div>
+
+<h3 class="subsection">Q. アプリの状態をリセットしたい</h3>
+<div class="tip-box">
+  A. ④出力タブの「🗑 全テストケース削除」で全テストケースを削除できます。
+  機能・要素のリセットは①機能分解タブで各機能を手動で削除してください。
+</div>
+
+<h3 class="subsection">Q. 直交法でどの直交表が選ばれるか</h3>
+<div class="tip-box">
+  A. 入力した因子数・水準数に基づいて最適な直交表が自動選択されます。
+  因子数や水準数が直交表の上限を超える場合はより大きい直交表が選ばれます。
+  全水準が2水準の場合は L4→L8→L12→L16 の順で最小テスト数のものが選択されます。
+</div>
+
+<div class="footer-note">
+  QualisCreate ユーザーマニュアル　Ver 1.0　— © 2026 QualisCreate
+</div>
+
+</body>
+</html>
